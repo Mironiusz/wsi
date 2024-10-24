@@ -1,5 +1,5 @@
 import numpy as np
-from functions import f, g, grad_f, grad_g, gradient_descent
+from functions import f, g, grad_f, grad_g, Solver
 from plotting import plot_g_function, plot_f_function, plot_g_function_3d
 from tests import run_tests, save_results_to_table
 
@@ -18,7 +18,8 @@ if __name__ == "__main__":
     x0_g = np.array([0, 1])
     paths_g = []
     for beta in steps_g:
-        _, path_g, iters = gradient_descent(g, grad_g, x0_g, beta)
+        solver = Solver(beta=beta)
+        _, path_g, iters = solver.solve(grad_g, x0_g)
         print(f"beta: {beta}, iters: {iters}")
         paths_g.append(path_g)
     plot_g_function(paths_g, steps_g, output_file="wykres_g_z_trajektoriami.png")
@@ -27,7 +28,8 @@ if __name__ == "__main__":
     x0_f = np.array([-2])
     paths_f = []
     for beta in steps_f:
-        _, path_f, iters = gradient_descent(f, grad_f, x0_f, beta, 0.01)
+        solver = Solver(beta=beta, epsilon=0.01)
+        _, path_f, iters = solver.solve(grad_f, x0_f)
         paths_f.append(path_f)
     plot_f_function(paths_f, steps_f, output_file="wykres_f_z_trajektoriami.png")
 

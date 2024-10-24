@@ -40,3 +40,23 @@ def gradient_descent(f, grad_f, x0, beta=0.1, epsilon=0.00001, max_iter=100000):
         x = x - beta * grad
         path.append(x.copy())
     return x, path, max_iter
+
+class Solver():
+    def __init__(self, beta=0.1, epsilon=0.00001, max_iter=100000):
+        self.beta = beta
+        self.epsilon = epsilon
+        self.max_iter = max_iter
+
+    def get_parameters(self):
+        return self.beta, self.epsilon, self.max_iter
+
+    def solve(self, grad_f, x0, *args, **kwargs):
+        x = x0
+        path = [x0.copy()]
+        for t in range(self.max_iter):
+            grad = grad_f(x)
+            if np.linalg.norm(grad) < self.epsilon:
+                return x, path, t
+            x = x - self.beta * grad
+            path.append(x.copy())
+        return x, path, self.max_iter
