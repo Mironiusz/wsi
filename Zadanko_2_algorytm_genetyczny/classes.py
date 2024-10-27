@@ -10,7 +10,7 @@ class Solver():
         self.max_iterations = max_iterations
         self.best_individual = None
         self.best_result = None
-        self.history = []  # lista do przechowywania najlepszych wyników w każdej iteracji
+        self.history = []
 
     def solve(self):
         current_iteration = 0
@@ -20,15 +20,17 @@ class Solver():
 
         while current_iteration < self.max_iterations:
             #print(f'Iteration {current_iteration}, best result: {self.best_result}')
+            #results.sort()
+
 
             new_population = self.proportionate_selection(current_population, results, self.individual_amount)
             new_population = self.crossover_and_mutate(new_population)
             results = [self.evaluate(individual) for individual in new_population]
             best_new_individual, best_new_result = self.find_best_individual(new_population, results)
 
-            self.history.append(best_new_result)  # Zapisz najlepszy wynik do historii
+            self.history.append(best_new_result)
 
-            if best_new_result < self.best_result:
+            if best_new_result > self.best_result:
                 self.best_individual = best_new_individual
                 self.best_result = best_new_result
 
@@ -36,7 +38,6 @@ class Solver():
             current_iteration += 1
 
     def plot_results(self):
-        # Wykres rozkładu wyników w każdej iteracji
         plt.figure(figsize=(10, 6))
         plt.scatter(range(len(self.history)), self.history, color="blue", alpha=0.6)
         plt.xlabel("Iteration")
@@ -47,23 +48,25 @@ class Solver():
         plt.show()
 
     def proportionate_selection(self, population, results, amount):
-        min_value = abs(np.min(results))
-        scaled_results = [result + min_value for result in results]
-        scaled_results_sum = sum(scaled_results)
+        min_result = np.min(results)
+        offset = -min_result + 1e-6
+        fitness = [result + offset for result in results]
+        fitness_sum = sum(fitness)
 
-        if scaled_results_sum == 0:
-            probabilities = [1 / len(scaled_results) for _ in scaled_results]
+        if fitness_sum == 0:
+            probabilities = [1 / len(fitness) for _ in fitness]
         else:
-            probabilities = [result / scaled_results_sum for result in scaled_results]
+            probabilities = [f / fitness_sum for f in fitness]
 
         cumulative_probabilities = np.cumsum(probabilities)
 
         new_population = []
-        for i in range(amount):
+        for _ in range(amount):
             random_value = np.random.rand()
             chosen_individual_index = np.where(cumulative_probabilities > random_value)[0][0]
             new_population.append(population[chosen_individual_index])
         return new_population
+
 
 
     def crossover_and_mutate(self, population):
@@ -97,7 +100,7 @@ class Solver():
 
 
     def find_best_individual(self, population, results):
-        best_index = np.argmin(results)
+        best_index = np.argmax(results)
         return population[best_index], results[best_index]
 
 
