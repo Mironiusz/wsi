@@ -26,7 +26,7 @@ if __name__ == '__main__':
     start_population = np.random.randint(0, 2, (25, 200))
     #start_population = np.ones((25, 200), dtype=int)
     # populacja startowa, ilość osobników, prawdopodobieństwo mutacji, prawdopodobieństwo krzyżowania, ilość iteracji
-    solver = Solver(start_population, 25, 0.1, 0.1, 3000)
+    solver = Solver(start_population, 25, 0.001, 0.9, 300)
     solver.solve()
     print(solver.best_individual)
     print(solver.best_result)

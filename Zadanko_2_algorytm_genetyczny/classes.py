@@ -73,7 +73,6 @@ class Solver():
         # crossover
         new_population = []
         i = 0
-
         while i < len(population) - 1:
             if np.random.rand() < self.crossover_probability:
                 crossover_point = np.random.randint(0, len(population[i]))
