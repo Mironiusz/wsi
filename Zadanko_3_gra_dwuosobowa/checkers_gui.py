@@ -23,8 +23,8 @@ class CheckersGUI:
         pygame.display.set_caption('Checkers')
 
         # Create players
-        self.player1 = Player('W')  # White (Bot)
-        self.player2 = Player('B')  # Black (Human)
+        self.player1 = Player('B')  # White (Bot)
+        self.player2 = Player('W')  # Black (Human)
 
         # Initialize game
         self.game = Checkers(self.player1, self.player2)
@@ -134,7 +134,9 @@ class CheckersGUI:
                                     # Must continue jumping
                                     self.selected_piece = self.move_sequence[-1]
                                     self.move_sequence = [self.selected_piece]
+                                    print("You must continue jumping!")  # Inform player
                                 else:
+                                    # End turn
                                     self.selected_piece = None
                                     self.move_sequence = []
                                 return
@@ -195,6 +197,27 @@ class CheckersGUI:
                 self.human_turn()
 
             clock.tick(30)
+
+    def set_custom_board(self, board: list[list[str]], white_to_move: bool = True):
+        """
+        Ustawia niestandardową konfigurację planszy.
+
+        Parameters:
+            board (List[List[str]]): 2D lista reprezentująca planszę (8x8).
+                ' ' - puste pole
+                'w' - biały pionek
+                'b' - czarny pionek
+                'W' - biała dama
+                'B' - czarna dama
+            white_to_move (bool): Czyja tura (True dla białych, False dla czarnych).
+        """
+        self.state.board = board
+        self.state.white_to_move = white_to_move
+        self.state.must_jump = False  # Reset must_jump flag for testing
+        self.selected_piece = None
+        self.move_sequence = []
+        print("Custom board set!")
+
 
 if __name__ == "__main__":
     checkers_gui = CheckersGUI()

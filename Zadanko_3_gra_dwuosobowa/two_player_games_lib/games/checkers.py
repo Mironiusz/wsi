@@ -159,29 +159,36 @@ class CheckersState(State):
         opponent_char = 'b' if player_char == 'w' else 'w'
         directions = self.get_directions(piece, first_move=first_move, capturing=True)
 
-        can_jump_further = False
-
         for dr, dc in directions:
             middle_row = row + dr
             middle_col = col + dc
             new_row = row + 2 * dr
             new_col = col + 2 * dc
-            if self.is_valid_position(new_row, new_col):
-                if self.board[middle_row][middle_col].lower() == opponent_char and self.board[new_row][new_col] == ' ':
-                    if ((middle_row, middle_col), (new_row, new_col)) not in visited:
-                        visited.add(((middle_row, middle_col), (new_row, new_col)))
-                        new_path = path + [(new_row, new_col)]
-                        further_jumps = self.get_piece_jumps(new_row, new_col, new_path, visited, first_move=False)
-                        if further_jumps:
-                            jumps.extend(further_jumps)
-                        else:
-                            jumps.append(CheckersMove(new_path))
-                        can_jump_further = True
 
-        if not can_jump_further and len(path) > 1:
+            # Sprawdzamy warunki do skoku
+            if self.is_valid_position(new_row, new_col):
+                if (
+                    self.board[middle_row][middle_col].lower() == opponent_char and
+                    self.board[new_row][new_col] == ' ' and
+                    (middle_row, middle_col) not in visited
+                ):
+                    # Aktualizujemy ścieżkę i oznaczamy środkowy skok jako odwiedzony
+                    new_path = path + [(new_row, new_col)]
+                    new_visited = visited | {(middle_row, middle_col)}
+
+                    # Rekurencyjnie znajdujemy kolejne skoki
+                    further_jumps = self.get_piece_jumps(new_row, new_col, new_path, new_visited, first_move=False)
+                    if further_jumps:
+                        jumps.extend(further_jumps)
+                    else:
+                        jumps.append(CheckersMove(new_path))
+
+        # Jeśli brak dalszych skoków, zwracamy aktualną ścieżkę
+        if not jumps and len(path) > 1:
             return [CheckersMove(path)]
-        else:
-            return jumps
+
+        return jumps
+
 
     def get_directions(self, piece: str, first_move: bool, capturing: bool) -> List[Tuple[int, int]]:
         """

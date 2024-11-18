@@ -19,7 +19,7 @@ def minimax(state: State, depth: int, alpha: float, beta: float, maximizing_play
     Zwraca:
         float: Heurystyczna wartość stanu.
     """
-    evaluate = evaluate_nim
+    evaluate = evaluate_checkers
 
     if depth == 0 or state.is_finished():
         return evaluate(state, maximizing_player_obj)
