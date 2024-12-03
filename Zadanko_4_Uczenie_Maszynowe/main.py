@@ -21,16 +21,17 @@ def main():
     df['age_years'] = df['age'] // 365
 
     # Dyskretyzacja atrybutów z obsługą duplikatów
-    df['age_bin'] = pd.cut(df['age_years'], bins=10, labels=False)
-    df['weight_bin'] = pd.qcut(df['weight'], q=6, labels=False, duplicates='drop')
-    df['ap_hi_bin'] = pd.qcut(df['ap_hi'], q=10, labels=False, duplicates='drop')
-    df['ap_lo_bin'] = pd.qcut(df['ap_lo'], q=10, labels=False, duplicates='drop')
+    df['age_bin'] = pd.cut(df['age_years'], bins=3, labels=False)
+    df['weight_bin'] = pd.qcut(df['weight'], q=3, labels=False, duplicates='drop')
+    df['height_bin'] = pd.qcut(df['height'], q=3, labels=False, duplicates='drop')
+    df['ap_hi_bin'] = pd.qcut(df['ap_hi'], q=3, labels=False, duplicates='drop')
+    df['ap_lo_bin'] = pd.qcut(df['ap_lo'], q=3, labels=False, duplicates='drop')
 
     # Mapowanie 'cardio' na etykiety stringowe
     df['cardio'] = df['cardio'].map({0: "No", 1: "Yes"})
 
     # Usunięcie oryginalnych kolumn ciągłych
-    df = df.drop(columns=['id', 'age', 'weight', 'ap_hi', 'ap_lo', 'age_years'])
+    df = df.drop(columns=['id', 'age', 'weight', 'ap_hi', 'ap_lo', 'age_years', 'height'])
 
     # Sprawdzenie, czy dyskretyzacja powiodła się
     print("Rozkład wartości po dyskretyzacji:")
@@ -103,6 +104,7 @@ def main():
     plt.xticks(depths_sorted)
     plt.grid(True)
     plt.show()
+    plt.savefig('wykres.png')
 
 
 
