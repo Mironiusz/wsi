@@ -13,7 +13,7 @@ def train_and_evaluate(depth, X_train, y_train, X_val, y_val):
     accuracy = accuracy_score(y_val, predictions)
     return depth, accuracy
 
-def main():
+def main(a, b, c, d ,e):
     # 1. Przygotowanie danych
     df = pd.read_csv('cardio_train.csv', delimiter=';')
 
@@ -21,11 +21,11 @@ def main():
     df['age_years'] = df['age'] // 365
 
     # Dyskretyzacja atrybutów z obsługą duplikatów
-    df['age_bin'] = pd.cut(df['age_years'], bins=3, labels=False)
-    df['weight_bin'] = pd.qcut(df['weight'], q=3, labels=False, duplicates='drop')
-    df['height_bin'] = pd.qcut(df['height'], q=3, labels=False, duplicates='drop')
-    df['ap_hi_bin'] = pd.qcut(df['ap_hi'], q=3, labels=False, duplicates='drop')
-    df['ap_lo_bin'] = pd.qcut(df['ap_lo'], q=3, labels=False, duplicates='drop')
+    df['age_bin'] = pd.cut(df['age_years'], bins=a, labels=False)
+    df['weight_bin'] = pd.qcut(df['weight'], q=b, labels=False, duplicates='drop')
+    df['height_bin'] = pd.qcut(df['height'], q=c, labels=False, duplicates='drop')
+    df['ap_hi_bin'] = pd.qcut(df['ap_hi'], q=d, labels=False, duplicates='drop')
+    df['ap_lo_bin'] = pd.qcut(df['ap_lo'], q=e, labels=False, duplicates='drop')
 
     # Mapowanie 'cardio' na etykiety stringowe
     df['cardio'] = df['cardio'].map({0: "No", 1: "Yes"})
@@ -34,13 +34,13 @@ def main():
     df = df.drop(columns=['id', 'age', 'weight', 'ap_hi', 'ap_lo', 'age_years', 'height'])
 
     # Sprawdzenie, czy dyskretyzacja powiodła się
-    print("Rozkład wartości po dyskretyzacji:")
-    print(df.describe())
-    print("Unikalne wartości w binach:")
-    print("age_bin:", df['age_bin'].unique())
-    print("weight_bin:", df['weight_bin'].unique())
-    print("ap_hi_bin:", df['ap_hi_bin'].unique())
-    print("ap_lo_bin:", df['ap_lo_bin'].unique())
+    # print("Rozkład wartości po dyskretyzacji:")
+    # print(df.describe())
+    # print("Unikalne wartości w binach:")
+    # print("age_bin:", df['age_bin'].unique())
+    # print("weight_bin:", df['weight_bin'].unique())
+    # print("ap_hi_bin:", df['ap_hi_bin'].unique())
+    # print("ap_lo_bin:", df['ap_lo_bin'].unique())
 
 
 
@@ -53,13 +53,13 @@ def main():
     X_val, X_test, y_val, y_test = train_test_split(
         X_temp, y_temp, test_size=0.5, random_state=42, stratify=y_temp
     )
-    print("Rozkład klas:")
-    print(y.value_counts())
+    # print("Rozkład klas:")
+    # print(y.value_counts())
 
 
 
     # 3. Trenowanie i walidacja
-    depths = range(1, 11)
+    depths = range(1, 8)
     validation_results = []
 
     num_workers = multiprocessing.cpu_count()
@@ -83,6 +83,7 @@ def main():
     # Znalezienie najlepszej głębokości
     best_depth, best_accuracy = max(validation_results, key=lambda x: x[1])
     print(f"\nNajlepsza głębokość: {best_depth} z dokładnością walidacji: {best_accuracy:.4f}")
+    return best_accuracy
 
 
 
@@ -103,10 +104,35 @@ def main():
     plt.ylabel('Dokładność walidacji')
     plt.xticks(depths_sorted)
     plt.grid(True)
-    plt.show()
-    plt.savefig('wykres.png')
 
 
 
 if __name__ == '__main__':
-    main()
+    """
+    Główna pętla poszukująca najlepszej konfiguracji binów dla cech.
+    Iteruje przez wszystkie kombinacje binów (1-5) dla pięciu cech i znajduje najlepszą konfigurację na podstawie dokładności walidacji.
+    """
+    soFarBest = (0, 0, 0, 0, 0, 0, 0)  # (best_accuracy, a, b, c, d, e)
+    total_iterations = 5 ** 5  # 3125 kombinacji
+    current_iteration = 0
+
+    for i in range(1, 6):
+        for j in range(1, 6):
+            for k in range(1, 6):
+                for l in range(1, 6):
+                    for m in range(1, 6):
+                        current_iteration += 1
+                        print(f"\nKombinacja {current_iteration}/{total_iterations}: a={i}, b={j}, c={k}, d={l}, e={m}")
+                        try:
+                            best = (main(i, j, k, l, m), i, j, k, l, m)  # best = (accuracy, a, b, c, d, e)
+                            if best[0] > soFarBest[0]:
+                                soFarBest = best
+                                print(f"Nowa najlepsza konfiguracja: {soFarBest}")
+                            else:
+                                print(f"Konfiguracja {best[1:]} nie jest lepsza od {soFarBest}")
+                        except Exception as e:
+                            print(f"Wyjątek dla konfiguracji a={i}, b={j}, c={k}, d={l}, e={m}: {e}")
+
+    print("\nNajlepsza konfiguracja binów:")
+    print(f"Dokładność walidacji: {soFarBest[0]:.4f}")
+    print(f"Biny: a={soFarBest[1]}, b={soFarBest[2]}, c={soFarBest[3]}, d={soFarBest[4]}, e={soFarBest[5]}")
