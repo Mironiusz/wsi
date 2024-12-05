@@ -53,13 +53,10 @@ def main(a, b, c, d ,e):
     X_val, X_test, y_val, y_test = train_test_split(
         X_temp, y_temp, test_size=0.5, random_state=42, stratify=y_temp
     )
-    # print("Rozkład klas:")
-    # print(y.value_counts())
-
 
 
     # 3. Trenowanie i walidacja
-    depths = range(1, 8)
+    depths = range(1, 11)
     validation_results = []
 
     num_workers = multiprocessing.cpu_count()
@@ -83,7 +80,6 @@ def main(a, b, c, d ,e):
     # Znalezienie najlepszej głębokości
     best_depth, best_accuracy = max(validation_results, key=lambda x: x[1])
     print(f"\nNajlepsza głębokość: {best_depth} z dokładnością walidacji: {best_accuracy:.4f}")
-    return best_accuracy
 
 
 
@@ -104,35 +100,9 @@ def main(a, b, c, d ,e):
     plt.ylabel('Dokładność walidacji')
     plt.xticks(depths_sorted)
     plt.grid(True)
+    plt.show()
 
 
 
 if __name__ == '__main__':
-    """
-    Główna pętla poszukująca najlepszej konfiguracji binów dla cech.
-    Iteruje przez wszystkie kombinacje binów (1-5) dla pięciu cech i znajduje najlepszą konfigurację na podstawie dokładności walidacji.
-    """
-    soFarBest = (0, 0, 0, 0, 0, 0, 0)  # (best_accuracy, a, b, c, d, e)
-    total_iterations = 5 ** 5  # 3125 kombinacji
-    current_iteration = 0
-
-    for i in range(1, 6):
-        for j in range(1, 6):
-            for k in range(1, 6):
-                for l in range(1, 6):
-                    for m in range(1, 6):
-                        current_iteration += 1
-                        print(f"\nKombinacja {current_iteration}/{total_iterations}: a={i}, b={j}, c={k}, d={l}, e={m}")
-                        try:
-                            best = (main(i, j, k, l, m), i, j, k, l, m)  # best = (accuracy, a, b, c, d, e)
-                            if best[0] > soFarBest[0]:
-                                soFarBest = best
-                                print(f"Nowa najlepsza konfiguracja: {soFarBest}")
-                            else:
-                                print(f"Konfiguracja {best[1:]} nie jest lepsza od {soFarBest}")
-                        except Exception as e:
-                            print(f"Wyjątek dla konfiguracji a={i}, b={j}, c={k}, d={l}, e={m}: {e}")
-
-    print("\nNajlepsza konfiguracja binów:")
-    print(f"Dokładność walidacji: {soFarBest[0]:.4f}")
-    print(f"Biny: a={soFarBest[1]}, b={soFarBest[2]}, c={soFarBest[3]}, d={soFarBest[4]}, e={soFarBest[5]}")
+    main(5, 1, 2, 3, 5)
